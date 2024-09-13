@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';  // Para criptografar a senha
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserAlreadyExistException } from 'src/auth/exceptions/user-already-exist.exception';
 
 @Injectable()
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.userRepository.findOneBy({ email: createUserDto.email });
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new UserAlreadyExistException()
     }
 
     const salt = await bcrypt.genSalt();
@@ -31,5 +32,15 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
+  async findById(id: string): Promise<User> {
+    return this.userRepository.findOne({
+      where: { id },
+    });
   }
 }

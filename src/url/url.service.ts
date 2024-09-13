@@ -47,9 +47,9 @@ export class UrlService {
     });
   }
 
-  async softDelete(shortUrl: string, user: User): Promise<void> {
+  async softDelete(id: string): Promise<void> {
     const url = await this.urlRepository.findOne({
-      where: { shortUrl, user, deletedAt: null },
+      where: { id },
     });
 
     if (url) {
@@ -58,18 +58,19 @@ export class UrlService {
     }
   }
 
-  async updateUrl(
-    shortUrl: string,
-    newOriginalUrl: string,
-    user: User,
-  ): Promise<void> {
+  async updateUrl(id: string, newOriginalUrl: string): Promise<Url> {
     const url = await this.urlRepository.findOne({
-      where: { shortUrl, user, deletedAt: null },
+      where: {
+        id,
+      },
     });
-
+ 
     if (url) {
       url.originalUrl = newOriginalUrl;
       await this.urlRepository.save(url);
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const fullShortUrl = `${baseUrl}/${url.shortUrl}`;
+      return { ...url, shortUrl: fullShortUrl };
     }
   }
 }
