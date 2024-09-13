@@ -1,16 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Url } from './url.entity';
 import { User } from '../user/user.entity';
 import { nanoid } from 'nanoid';
 import { CreateUrlDto } from './dto/create-url.dto';
+import { AbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
+import { Action } from 'src/casl/enums/actions.enum';
 
 @Injectable()
 export class UrlService {
   constructor(
     @InjectRepository(Url)
     private urlRepository: Repository<Url>,
+    private readonly abilityFactory: AbilityFactory,  // Injetar AbilityFactory
+
   ) {}
 
   async create(createUrlDto: CreateUrlDto, user?: User): Promise<Url> {
@@ -47,24 +51,34 @@ export class UrlService {
     });
   }
 
-  async softDelete(id: string): Promise<void> {
+  async softDelete(id: string,user:User): Promise<void> {
     const url = await this.urlRepository.findOne({
       where: { id },
     });
-
+    const ability = this.abilityFactory.defineAbility(user as User);
+    const can = ability.can(Action.DELETE, url);
+    if(!can){
+      throw new ForbiddenException('You are not allowed to delete this URL');
+    }
     if (url) {
       url.deletedAt = new Date();
       await this.urlRepository.save(url);
     }
   }
 
-  async updateUrl(id: string, newOriginalUrl: string): Promise<Url> {
+  async updateUrl(id: string, newOriginalUrl: string,user:User): Promise<Url> {
     const url = await this.urlRepository.findOne({
       where: {
         id,
       },
     });
- 
+    const ability = this.abilityFactory.defineAbility(user as User);
+    const can = ability.can(Action.UPDATE, url);
+
+    if (!can) {
+      throw new ForbiddenException('You are not allowed to update this URL');
+    }
+
     if (url) {
       url.originalUrl = newOriginalUrl;
       await this.urlRepository.save(url);

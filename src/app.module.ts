@@ -6,6 +6,7 @@ import { UrlModule } from './url/url.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { CaslModule } from './casl/casl.module';
  
 
 @Module({
@@ -25,7 +26,8 @@ import { AuthModule } from './auth/auth.module';
     }),
     UserModule,
     UrlModule,
-    AuthModule,  
+    AuthModule,
+    CaslModule,  
   ],
   controllers: [AppController],
   providers: [AppService],

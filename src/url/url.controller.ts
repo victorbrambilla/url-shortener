@@ -9,6 +9,7 @@ import {
   Req,
   Res,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { Request, Response } from 'express';
@@ -16,10 +17,14 @@ import { User } from '../user/user.entity';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
+import { AbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
 
 @Controller('urls')
 export class UrlController {
-  constructor(private readonly urlService: UrlService) {}
+  constructor(
+    private readonly urlService: UrlService,
+    private readonly abilityFactory: AbilityFactory, // Injetar AbilityFactory
+  ) {}
 
   @UseGuards(OptionalJwtAuthGuard)
   @Post()
@@ -58,7 +63,7 @@ export class UrlController {
   @Delete(':id')
   async delete(@Param('id') id: string, @Req() req: Request): Promise<void> {
     const user = req.user as User;
-    await this.urlService.softDelete(id);
+    await this.urlService.softDelete(id, user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,9 +71,15 @@ export class UrlController {
   async update(
     @Param('id') id: string,
     @Body() body: { newOriginalUrl: string },
+    @Req() req: Request,
   ): Promise<{ shortUrl: string }> {
-    console.log('id', id);
-    const newUrl = await this.urlService.updateUrl(id, body.newOriginalUrl);
+    const user = req.user as User;
+
+    const newUrl = await this.urlService.updateUrl(
+      id,
+      body.newOriginalUrl,
+      user,
+    );
     return newUrl;
   }
 }

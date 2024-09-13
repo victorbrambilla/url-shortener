@@ -15,6 +15,9 @@ export class Url {
   @Column({ default: 0 })
   clicks: number;
 
+  @Column({ nullable: true })
+  userId: string;
+
   @ManyToOne(() => User, (user) => user.id, { nullable: true })
   user: User;
 
