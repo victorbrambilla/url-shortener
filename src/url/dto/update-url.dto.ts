@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsUrl } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUrlDto {
+export class UpdateUrlDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsUrl({}, { message: 'Invalid URL' })
-  originalUrl: string;
+  newOriginalUrl: string;
 }
