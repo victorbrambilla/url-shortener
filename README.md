@@ -49,7 +49,7 @@ src/
 
 1. Clone o repositório:
    ```
-   git clone <URL_DO_REPOSITORIO>
+   git clone https://github.com/victorbrambilla/url-shortener.git
    cd <NOME_DO_DIRETORIO>
    ```
 
