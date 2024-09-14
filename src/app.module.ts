@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { CaslModule } from './casl/casl.module';
 import { TenantModule } from './tenant/tenant.module';
 import { TenantMiddleware } from './tenant/middleware/tenant.middleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './shared/interceptors/logger.interceptor';
 
 @Module({
   imports: [
@@ -32,7 +34,13 @@ import { TenantMiddleware } from './tenant/middleware/tenant.middleware';
     TenantModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

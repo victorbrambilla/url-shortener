@@ -3,7 +3,7 @@ services:
   api:
     build: .
     ports:
-      - '4000:3000'
+      - '3000:3000'
     environment:
       NODE_ENV: development
       DB_HOST: db

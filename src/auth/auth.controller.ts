@@ -3,13 +3,13 @@ import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login-dto';
+import { Request } from 'express';
 
 @ApiTags('Autenticação')
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private userService: UserService,
   ) {}
 
   @Post('login')

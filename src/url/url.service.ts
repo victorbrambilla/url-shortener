@@ -44,7 +44,7 @@ export class UrlService {
 
     await this.urlRepository.save(newUrl);
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-    const fullShortUrl = `${baseUrl}/${shortUrl}`;
+    const fullShortUrl = `${baseUrl}/urls/${shortUrl}`;
     return { ...newUrl, shortUrl: fullShortUrl };
   }
 
