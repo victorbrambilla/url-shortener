@@ -1,6 +1,15 @@
 # URL Shortener
 
-Este projeto é um encurtador de URLs desenvolvido com NestJS e PostgreSQL.
+Este é um projeto de API para encurtamento de URLs, construído com **NestJS** e utilizando **TypeORM** para a persistência de dados. A aplicação possui suporte a **multi-tenant**, o que permite que múltiplos clientes utilizem a mesma instância da API, isolando seus dados de forma segura.
+
+## Tecnologias Utilizadas
+
+- **NestJS**: Framework Node.js progressivo para construção de aplicações escaláveis e eficientes. Utilizado para a criação da API e da arquitetura modular.
+- **TypeORM**: ORM para interação com o banco de dados PostgreSQL, facilitando o gerenciamento de entidades e migrações. Utilizado para implementar o modelo **multi-tenant**.
+- **PostgreSQL**: Banco de dados relacional utilizado para armazenar as URLs e suas informações relacionadas.
+- **Docker**: Utilizado para containerização da aplicação e fácil gerenciamento dos ambientes de desenvolvimento e produção.
+- **Swagger**: Documentação automática da API, facilitando o entendimento e a integração com outros serviços.
+
 
 ## Estrutura base do Projeto
 
@@ -49,7 +58,7 @@ src/
 
 1. Clone o repositório:
    ```
-   git clone <URL_DO_REPOSITORIO>
+   git clone https://github.com/victorbrambilla/url-shortener.git
    cd <NOME_DO_DIRETORIO>
    ```
 
