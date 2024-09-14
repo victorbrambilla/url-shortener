@@ -9,6 +9,9 @@ import {
   Req,
   Res,
   UseGuards,
+  Query,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { Request, Response } from 'express';
@@ -24,9 +27,14 @@ import {
 } from '@nestjs/swagger';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { Url } from './url.entity';
+import { ApiPaginatedResponse } from 'src/shared/decorators/api-paginated-response.decorator';
+import { UrlDto } from './dto/url.dto';
+import { PageOptionsDto } from 'src/shared/dto/page-options.dto';
+import { PageDto } from 'src/shared/dto/page.dto';
 @ApiBearerAuth()
 @ApiTags('URLs')
 @Controller('urls')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UrlController {
   constructor(private readonly urlService: UrlService) {}
 
@@ -53,9 +61,13 @@ export class UrlController {
   @ApiOperation({ summary: 'Busca todas as URLs encurtadas pelo tenant' })
   @ApiResponse({ status: 200, description: 'URLs encontradas com sucesso.' })
   @ApiResponse({ status: 403, description: 'Acesso negado.' })
-  async findAll(@Req() req: Request): Promise<Url[]> {
+  @ApiPaginatedResponse(UrlDto)
+  async findAll(
+    @Req() req: Request,
+    @Query() pageOptionsDto: PageOptionsDto,
+  ):Promise<PageDto<UrlDto>> {
     const tenantId = req['tenantId'];
-    return this.urlService.findAllByTenant(tenantId);
+    return this.urlService.findAllByTenant(tenantId,pageOptionsDto);
   }
 
   @Get(':shortUrl')
@@ -83,9 +95,12 @@ export class UrlController {
   @ApiOperation({ summary: 'Busca todas as URLs encurtadas' })
   @ApiResponse({ status: 200, description: 'URLs encontradas com sucesso.' })
   @ApiResponse({ status: 403, description: 'Acesso negado.' })
-  async findAllByUser(@Req() req: Request): Promise<Url[]> {
+  @ApiPaginatedResponse(UrlDto)
+  async findAllByUser(@Req() req: Request,
+  @Query() pageOptionsDto: PageOptionsDto,
+): Promise<PageDto<UrlDto>>  {
     const user = req.user as User;
-    return this.urlService.findAllByUser(user);
+    return this.urlService.findAllByUser(user, pageOptionsDto);
   }
 
   @UseGuards(JwtAuthGuard)

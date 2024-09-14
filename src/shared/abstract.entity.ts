@@ -20,5 +20,6 @@ export abstract class AbstractEntity {
   updatedAt: Date;
 
   @Column({ nullable: true })
+  @Exclude()
   deletedAt: Date;
 }

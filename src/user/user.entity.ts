@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/shared/abstract.entity';
 import { Tenant } from 'src/tenant/tenant.entity';
 import { Url } from 'src/url/url.entity';
@@ -12,6 +13,7 @@ export class User extends AbstractEntity {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @ManyToOne(() => Tenant, (tenant) => tenant.users)

@@ -11,6 +11,10 @@ import { nanoid } from 'nanoid';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { AbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { Action } from 'src/casl/enums/actions.enum';
+import { PageOptionsDto } from 'src/shared/dto/page-options.dto';
+import { UrlDto } from './dto/url.dto';
+import { PageDto } from 'src/shared/dto/page.dto';
+import { PageMetaDto } from 'src/shared/dto/page-meta.dto';
 
 @Injectable()
 export class UrlService {
@@ -45,7 +49,9 @@ export class UrlService {
   }
 
   async findByShortUrl(shortUrl: string): Promise<Url> {
-    return this.urlRepository.findOne({ where: { shortUrl, deletedAt: IsNull() } });
+    return this.urlRepository.findOne({
+      where: { shortUrl, deletedAt: IsNull() },
+    });
   }
 
   async incrementClicks(shortUrl: string): Promise<void> {
@@ -54,18 +60,6 @@ export class UrlService {
       url.clicks += 1;
       await this.urlRepository.save(url);
     }
-  }
-
-  async findAllByUser(user: User): Promise<Url[]> {
-    return this.urlRepository.find({
-      where: {
-        user: {
-          id: user.id,
-        },
-        deletedAt: IsNull(),
-      },
-      order: { createdAt: 'DESC' },
-    });
   }
 
   async softDelete(id: string, user: User): Promise<void> {
@@ -117,9 +111,45 @@ export class UrlService {
     }
   }
 
-  async findAllByTenant(tenantId: string): Promise<Url[]> {
-    return this.urlRepository.find({
-      where: { tenantId, deletedAt: IsNull() },
+  async findAllByTenant(
+    tenantId: string,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<UrlDto>> {
+    const queryBuilder = this.urlRepository.createQueryBuilder('url');
+    queryBuilder.where('url.tenantId = :tenantId', { tenantId });
+    queryBuilder.andWhere('url.deletedAt IS NULL');
+    queryBuilder.orderBy('url.createdAt', 'DESC');
+    queryBuilder.skip(pageOptionsDto.skip);
+    queryBuilder.take(pageOptionsDto.take);
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({
+      itemCount,
+      pageOptionsDto,
     });
+
+    return new PageDto(entities, pageMetaDto);
+  }
+
+  async findAllByUser(
+    user: User,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<UrlDto>> {
+    const queryBuilder = this.urlRepository.createQueryBuilder('url');
+    queryBuilder.where('url.userId = :userId', { userId: user.id });
+    queryBuilder.andWhere('url.deletedAt IS NULL');
+    queryBuilder.orderBy('url.createdAt', 'DESC');
+    queryBuilder.skip(pageOptionsDto.skip);
+    queryBuilder.take(pageOptionsDto.take);
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({
+      itemCount,
+      pageOptionsDto,
+    });
+
+    return new PageDto(entities, pageMetaDto);
   }
 }
