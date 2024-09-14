@@ -9,7 +9,6 @@ import {
   Req,
   Res,
   UseGuards,
-  ForbiddenException,
 } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { Request, Response } from 'express';
@@ -17,16 +16,19 @@ import { User } from '../user/user.entity';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
-import { AbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UpdateUrlDto } from './dto/update-url.dto';
-@ApiBearerAuth()  
+import { Url } from './url.entity';
+@ApiBearerAuth()
 @ApiTags('URLs')
 @Controller('urls')
 export class UrlController {
-  constructor(
-    private readonly urlService: UrlService,
-  ) {}
+  constructor(private readonly urlService: UrlService) {}
 
   @UseGuards(OptionalJwtAuthGuard)
   @Post()
@@ -38,13 +40,30 @@ export class UrlController {
     @Req() req: Request,
   ): Promise<{ shortUrl: string }> {
     const user = req.user as User;
-    const newUrl = await this.urlService.create(createUrlDto, user);
+    const tenantId = req['tenantId'];
+    const newUrl = await this.urlService.create({
+      createUrlDto,
+      user,
+      tenantId,
+    });
     return { shortUrl: newUrl.shortUrl };
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('/tenant')
+  @ApiOperation({ summary: 'Busca todas as URLs encurtadas pelo tenant' })
+  @ApiResponse({ status: 200, description: 'URLs encontradas com sucesso.' })
+  @ApiResponse({ status: 403, description: 'Acesso negado.' })
+  async findAll(@Req() req: Request): Promise<Url[]> {
+    const tenantId = req['tenantId'];
+    return this.urlService.findAllByTenant(tenantId);
   }
 
   @Get(':shortUrl')
   @ApiOperation({ summary: 'Redireciona para a URL original' })
-  @ApiResponse({ status: 302, description: 'Redirecionado para a URL original.' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirecionado para a URL original.',
+  })
   async redirectToOriginal(
     @Param('shortUrl') shortUrl: string,
     @Res() res: Response,
@@ -59,17 +78,15 @@ export class UrlController {
     }
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({ summary: 'Busca todas as URLs encurtadas' })
   @ApiResponse({ status: 200, description: 'URLs encontradas com sucesso.' })
   @ApiResponse({ status: 403, description: 'Acesso negado.' })
-  async findAllByUser(@Req() req: Request): Promise<any> {
+  async findAllByUser(@Req() req: Request): Promise<Url[]> {
     const user = req.user as User;
     return this.urlService.findAllByUser(user);
   }
-
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
@@ -88,7 +105,7 @@ export class UrlController {
   @ApiResponse({ status: 403, description: 'Acesso negado.' })
   async update(
     @Param('id') id: string,
-    @Body() body:UpdateUrlDto,
+    @Body() body: UpdateUrlDto,
     @Req() req: Request,
   ): Promise<{ shortUrl: string }> {
     const user = req.user as User;

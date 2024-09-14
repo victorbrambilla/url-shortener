@@ -1,6 +1,10 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Url } from './url.entity';
 import { User } from '../user/user.entity';
 import { nanoid } from 'nanoid';
@@ -13,17 +17,25 @@ export class UrlService {
   constructor(
     @InjectRepository(Url)
     private urlRepository: Repository<Url>,
-    private readonly abilityFactory: AbilityFactory,  // Injetar AbilityFactory
-
+    private readonly abilityFactory: AbilityFactory,
   ) {}
 
-  async create(createUrlDto: CreateUrlDto, user?: User): Promise<Url> {
+  async create({
+    createUrlDto,
+    user,
+    tenantId,
+  }: {
+    createUrlDto: CreateUrlDto;
+    user?: User;
+    tenantId?: string;
+  }): Promise<Url> {
     const shortUrl = nanoid(6);
 
     const newUrl = this.urlRepository.create({
       originalUrl: createUrlDto.originalUrl,
       shortUrl,
       user,
+      tenantId,
     });
 
     await this.urlRepository.save(newUrl);
@@ -33,7 +45,7 @@ export class UrlService {
   }
 
   async findByShortUrl(shortUrl: string): Promise<Url> {
-    return this.urlRepository.findOne({ where: { shortUrl, deletedAt: null } });
+    return this.urlRepository.findOne({ where: { shortUrl, deletedAt: IsNull() } });
   }
 
   async incrementClicks(shortUrl: string): Promise<void> {
@@ -46,18 +58,26 @@ export class UrlService {
 
   async findAllByUser(user: User): Promise<Url[]> {
     return this.urlRepository.find({
-      where: { user, deletedAt: null },
+      where: {
+        user: {
+          id: user.id,
+        },
+        deletedAt: IsNull(),
+      },
       order: { createdAt: 'DESC' },
     });
   }
 
-  async softDelete(id: string,user:User): Promise<void> {
+  async softDelete(id: string, user: User): Promise<void> {
     const url = await this.urlRepository.findOne({
       where: { id },
     });
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
     const ability = this.abilityFactory.defineAbility(user as User);
     const can = ability.can(Action.DELETE, url);
-    if(!can){
+    if (!can) {
       throw new ForbiddenException('You are not allowed to delete this URL');
     }
     if (url) {
@@ -66,12 +86,21 @@ export class UrlService {
     }
   }
 
-  async updateUrl(id: string, newOriginalUrl: string,user:User): Promise<Url> {
+  async updateUrl(
+    id: string,
+    newOriginalUrl: string,
+    user: User,
+  ): Promise<Url> {
     const url = await this.urlRepository.findOne({
       where: {
         id,
       },
     });
+
+    if (!url) {
+      throw new NotFoundException('URL not found');
+    }
+
     const ability = this.abilityFactory.defineAbility(user as User);
     const can = ability.can(Action.UPDATE, url);
 
@@ -86,5 +115,11 @@ export class UrlService {
       const fullShortUrl = `${baseUrl}/${url.shortUrl}`;
       return { ...url, shortUrl: fullShortUrl };
     }
+  }
+
+  async findAllByTenant(tenantId: string): Promise<Url[]> {
+    return this.urlRepository.find({
+      where: { tenantId, deletedAt: IsNull() },
+    });
   }
 }

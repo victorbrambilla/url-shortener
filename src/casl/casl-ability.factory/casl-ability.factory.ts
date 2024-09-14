@@ -18,9 +18,8 @@ export type AppAbility = Ability<[Action, Subjects]>;
 export class AbilityFactory {
   defineAbility(user: User) {
     const { can, build } = new AbilityBuilder<Ability<[Action, Subjects]>>(Ability as AbilityClass<AppAbility>);
-    can(Action.CREATE, Url);
 
-    can([Action.READ,Action.UPDATE,Action.DELETE], Url, { userId: user.id });
+    can([Action.READ,Action.UPDATE,Action.DELETE], Url, { userId: user.id, tenantId: user.tenantId });
 
     return build({
       detectSubjectType: item => item.constructor as ExtractSubjectType<Subjects>,

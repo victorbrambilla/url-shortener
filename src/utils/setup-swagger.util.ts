@@ -9,6 +9,7 @@ export function setupSwagger(app: INestApplication): void {
         "https://www.linkedin.com/in/victorbrambilla",
         "victor-brambilla@hotmail.com",
     )
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, options);

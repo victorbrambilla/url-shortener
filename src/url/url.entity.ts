@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from 'src/user/user.entity';
+import { Tenant } from 'src/tenant/tenant.entity';
 
 @Entity()
 export class Url {
@@ -18,8 +19,14 @@ export class Url {
   @Column({ nullable: true })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.id, { nullable: true })
+  @ManyToOne(() => User, (user) => user.urls, { nullable: true })
   user: User;
+
+  @ManyToOne(() => Tenant, (tenant) => tenant.urls)
+  tenant: Tenant;
+
+  @Column({ nullable: true })
+  tenantId: string;
 
   @CreateDateColumn()
   createdAt: Date;
