@@ -1,73 +1,150 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# URL Shortener
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este projeto é um encurtador de URLs desenvolvido com NestJS e PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Estrutura base do Projeto
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
+```
+src/
+├── auth/
+│   ├── dto/
+│   ├── exceptions/
+│   ├── guards/
+│   ├── auth.controller.spec.ts
+│   ├── auth.controller.ts
+│   ├── auth.module.ts
+│   ├── auth.service.spec.ts
+│   ├── auth.service.ts
+│   └── jwt.strategy.ts
+├── shared/
+├── tenant/
+│   ├── middleware/
+│   ├── tenant.entity.ts
+│   ├── tenant.module.ts
+│   └── tenant.service.ts
+├── url/
+├── user/
+│   ├── dto/
+│   ├── user.controller.spec.ts
+│   ├── user.controller.ts
+│   ├── user.entity.ts
+│   ├── user.module.ts
+│   ├── user.service.spec.ts
+│   └── user.service.ts
+├── utils/
+│   ├── app.controller.spec.ts
+│   ├── app.controller.ts
+│   ├── app.module.ts
+│   ├── app.service.ts
+│   └── main.ts
+└── test/
 ```
 
-## Running the app
+## Requisitos
 
-```bash
-# development
-$ npm run start
+- Docker
+- Docker Compose
 
-# watch mode
-$ npm run start:dev
+## Configuração e Execução
 
-# production mode
-$ npm run start:prod
+1. Clone o repositório:
+   ```
+   git clone <URL_DO_REPOSITORIO>
+   cd <NOME_DO_DIRETORIO>
+   ```
+
+2. Configure as variáveis de ambiente:
+   Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+
+   ```
+    PORT=3000
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_USERNAME=postgres
+    DB_PASSWORD=postgres
+    DB_NAME=url_shortener
+    JWT_SECRET=your_secret_key
+    BASE_URL=http://localhost:3000
+    DEBUG=false
+    USE_JSON_LOGGER=false
+   ```
+
+   Nota: Ajuste os valores conforme necessário para o seu ambiente.
+
+3. Inicie os contêineres Docker:
+   ```
+   docker-compose up -d
+   ```
+
+   Isso iniciará a API na porta 3000 e o banco de dados PostgreSQL na porta 6432.
+
+4. A API estará disponível em `http://localhost:3000`.
+
+5. A documentação Swagger estará disponível em `http://localhost:3000/swagger`.
+
+## Variáveis de Ambiente
+
+As seguintes variáveis de ambiente são utilizadas:
+
+- `PORT`: Porta em que a aplicação será executada (padrão: 3000)
+- `DB_HOST`: Host do banco de dados
+- `DB_PORT`: Porta do banco de dados
+- `DB_USERNAME`: Usuário do banco de dados
+- `DB_PASSWORD`: Senha do banco de dados
+- `DB_NAME`: Nome do banco de dados
+- `JWT_SECRET`: Chave secreta para geração de tokens JWT
+- `BASE_URL`: URL base da aplicação
+- `DEBUG`: Ativa o modo de depuração (true/false)
+- `USE_JSON_LOGGER`: Utiliza logger em formato JSON (true/false)
+
+## Desenvolvimento
+
+Para desenvolvimento local sem Docker:
+
+1. Instale as dependências:
+   ```
+   npm install
+   ```
+
+2. Configure as variáveis de ambiente no arquivo `.env`.
+
+3. Execute o projeto:
+   ```
+   npm run start:dev
+   ```
+
+## Testes
+
+Execute os testes com:
+
+```
+npm run test
 ```
 
-## Test
+## Documentação da API
 
-```bash
-# unit tests
-$ npm run test
+A documentação da API está disponível através do Swagger UI. Após iniciar a aplicação, você pode acessar a documentação em:
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+http://localhost:3000/swagger
 ```
 
-## Support
+Esta interface fornece uma visão detalhada de todos os endpoints disponíveis, permitindo também testar as requisições diretamente pelo navegador.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Funcionalidades
 
-## Stay in touch
+- Autenticação de usuários
+- Gerenciamento de inquilinos (tenants)
+- Encurtamento de URLs
+- Gerenciamento de usuários
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Contribuição
 
-## License
+Para contribuir com o projeto, por favor, siga estas etapas:
 
-Nest is [MIT licensed](LICENSE).
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Faça commit das suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Faça push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+ 
