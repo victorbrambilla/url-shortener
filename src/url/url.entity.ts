@@ -1,12 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity, Column,
+  ManyToOne
+} from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { Tenant } from 'src/tenant/tenant.entity';
+import { AbstractEntity } from 'src/shared/abstract.entity';
 
 @Entity()
-export class Url {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Url extends AbstractEntity {
   @Column()
   originalUrl: string;
 
@@ -27,13 +28,4 @@ export class Url {
 
   @Column({ nullable: true })
   tenantId: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Column({ nullable: true })
-  deletedAt: Date;   
 }

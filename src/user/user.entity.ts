@@ -1,12 +1,13 @@
+import { AbstractEntity } from 'src/shared/abstract.entity';
 import { Tenant } from 'src/tenant/tenant.entity';
 import { Url } from 'src/url/url.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Entity, Column, ManyToOne,
+  OneToMany
+} from 'typeorm';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class User extends AbstractEntity {
   @Column({ unique: true })
   email: string;
 
@@ -21,13 +22,4 @@ export class User {
 
   @OneToMany(() => Url, (url) => url.user)
   urls: Url[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Column({ nullable: true })
-  deletedAt: Date;  
 }
