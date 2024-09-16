@@ -10,6 +10,9 @@ Este é um projeto de API para encurtamento de URLs, construído com **NestJS** 
 - **Docker**: Utilizado para containerização da aplicação e fácil gerenciamento dos ambientes de desenvolvimento e produção.
 - **Swagger**: Documentação automática da API, facilitando o entendimento e a integração com outros serviços.
 
+## Utilizando Node.js 18
+
+Este projeto foi configurado para rodar com **Node.js 18**, garantindo a compatibilidade com as últimas features do JavaScript, otimizações de desempenho e suporte para novas APIs.
 
 ## Estrutura base do Projeto
 
@@ -146,6 +149,62 @@ Esta interface fornece uma visão detalhada de todos os endpoints disponíveis, 
 - Gerenciamento de inquilinos (tenants)
 - Encurtamento de URLs
 - Gerenciamento de usuários
+
+## Possíveis Mudanças para Escalar a Aplicação
+
+### 1. **Banco de Dados**
+
+#### **Replicação e Particionamento**
+- **Replicação**: Implementar replicação de leitura no PostgreSQL para distribuir a carga de consultas entre várias réplicas e melhorar a escalabilidade. As réplicas de leitura podem ser usadas em conjunto com um balanceador de carga para distribuir as consultas de leitura e otimizar o desempenho.
+- **Particionamento de Tabelas**: Dividir grandes tabelas, como a tabela de **URLs**, em várias partições. O particionamento por tenant (multi-tenant) pode ser uma solução eficiente, dividindo os dados dos clientes de forma lógica e melhorando o desempenho em consultas de grande escala.
+
+#### **Auto Scaling no Banco de Dados**
+- Considerar a utilização de serviços gerenciados de banco de dados, como **Amazon RDS** ou **Google Cloud SQL**, que oferecem escalabilidade automática com base na carga, backups automáticos e alta disponibilidade.
+
+### 2. **Cache de Requisições**
+
+#### **Redis ou Memcached**
+- Implementar um sistema de cache com **Redis** ou **Memcached** para armazenar respostas de redirecionamentos frequentes, reduzindo a necessidade de consultas repetitivas ao banco de dados. Isso pode melhorar drasticamente o tempo de resposta e a capacidade de lidar com um grande número de requisições.
+
+### 3. **Escalabilidade Horizontal**
+
+#### **Containerização com Docker e Orquestração com Kubernetes**
+- Migrar a infraestrutura para **Kubernetes** para orquestração e gestão de containers. O Kubernetes oferece escalabilidade automática (horizontal pod autoscaling), onde mais instâncias da API podem ser criadas automaticamente com base na demanda, além de gerenciamento de falhas e balanceamento de carga.
+  
+#### **Load Balancer**
+- Utilizar um **balanceador de carga** para distribuir o tráfego de forma eficiente entre várias instâncias da API. Serviços como **AWS Elastic Load Balancer (ELB)** ou **NGINX** podem ser utilizados para esse propósito, melhorando a disponibilidade e resiliência da aplicação.
+
+### 4. **Desacoplamento de Serviços**
+
+#### **Microserviços**
+- Para uma escalabilidade ainda maior, a aplicação pode ser refatorada para uma arquitetura de **microserviços**. Cada parte da aplicação, como a lógica de encurtamento de URLs, gestão de tenants, e métricas, pode ser separada em microserviços independentes. Isso permite escalar individualmente partes da aplicação com base na demanda.
+
+#### **Mensageria Assíncrona (Fila)**
+- Implementar um sistema de mensagens assíncronas, como **RabbitMQ** ou **Amazon SQS**, para gerenciar processos demorados ou com grande volume, como o processamento de métricas e logs, redirecionamentos massivos e outras operações. A mensageria desacopla processos e melhora a resiliência da aplicação.
+
+### 5. **Monitoramento e Observabilidade**
+
+#### **Prometheus e Grafana**
+- O **Prometheus** pode ser configurado para monitorar mais métricas detalhadas, como uso de CPU, memória, latência e taxa de erro por rota. **Grafana** pode ser utilizado para visualizar e configurar alertas proativos com base nessas métricas.
+
+#### **Logs Centralizados**
+- Usar uma solução de logs centralizados, como **ELK Stack (Elasticsearch, Logstash, Kibana)** ou **AWS CloudWatch**, para armazenar e analisar logs. Isso ajudará a identificar gargalos de desempenho e falhas na aplicação em tempo real.
+
+### 6. **Serviço de DNS e CDN**
+
+#### **Cloudflare ou AWS CloudFront**
+- Utilizar um serviço de **CDN (Content Delivery Network)** como **Cloudflare** ou **AWS CloudFront** para otimizar a entrega de conteúdo estático e reduzir a latência para usuários em diferentes partes do mundo. O Cloudflare também pode atuar como um proxy reverso e fornecer proteção contra ataques DDoS.
+
+#### **DNS Gerenciado**
+- Usar um serviço de DNS gerenciado como **Route 53** da AWS ou o DNS do **Cloudflare** para roteamento global e alta disponibilidade, garantindo que o serviço esteja acessível com baixa latência e redirecionando o tráfego para instâncias geograficamente próximas aos usuários.
+
+### 7. **Segurança**
+
+#### **Rate Limiting**
+- Implementar **Rate Limiting** para limitar o número de requisições que cada IP ou cliente pode fazer em um determinado intervalo de tempo. Isso ajuda a prevenir abuso e protege a API contra ataques de negação de serviço (DoS).
+
+#### **Proteção contra DDoS**
+- Utilizar serviços gerenciados como **AWS Shield** ou **Cloudflare** para proteger a aplicação de ataques DDoS e garantir alta disponibilidade mesmo sob cargas elevadas.
 
 ## Contribuição
 
