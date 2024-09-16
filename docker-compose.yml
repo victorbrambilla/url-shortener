@@ -8,9 +8,14 @@ services:
       NODE_ENV: development
       DB_HOST: db
       DB_PORT: 5432
-      DB_USER: postgres
+      DB_USERNAME: postgres
       DB_PASSWORD: password
       DB_NAME: url_shortener
+      JWT_SECRET: secret
+      BASE_URL: http://localhost:3000
+      DEBUG: true
+      USE_JSON_LOGGER: true
+
     depends_on:
       - db
 
